@@ -9,7 +9,7 @@ const crypto = require('crypto');
 require("dotenv").config();
 
 class BrowserPool {
-  constructor(maxBrowsers = 2) {
+  constructor(maxBrowsers = 5) {
     this.browsers = [];
     this.maxBrowsers = maxBrowsers;
     this.currentIndex = 0;
@@ -75,7 +75,7 @@ class BrowserPool {
 class WebCrawler {
   constructor() {
     this.visitedUrls = new Set();
-    this.browserPool = new BrowserPool(2);
+    this.browserPool = new BrowserPool(5);
     this.crawlData = {
       academicPapers: [],
       technicalDocs: [],
@@ -95,12 +95,12 @@ class WebCrawler {
     
     // Tier 3: Dynamic relevance thresholds per category
     this.categoryThresholds = {
-      academicPapers: 0.70,
-      technicalDocs: 0.65,
-      codeRepos: 0.55,
-      videoTutorials: 0.50,
-      expertInterviews: 0.60,
-      industryReports: 0.65
+      academicPapers: 0.50,     // Lower from 0.70
+      technicalDocs: 0.45,      // Lower from 0.65
+      codeRepos: 0.35,          // Lower from 0.55
+      videoTutorials: 0.30,     // Lower from 0.50 ⭐ KEY CHANGE
+      expertInterviews: 0.45,   // Lower from 0.60
+      industryReports: 0.50     // Lower from 0.65
     };
 
     // Tier 2: Difficulty level keywords
@@ -112,7 +112,7 @@ class WebCrawler {
   }
 
   // TIER 1: Parallel Crawling Architecture
-  async crawlDomain(domain, maxPages = 50) {
+  async crawlDomain(domain, maxPages = 100) {
     console.log(`🚀 Starting PARALLEL crawl for: ${domain}`);
     const startTime = Date.now();
     
@@ -124,12 +124,12 @@ class WebCrawler {
       
       // TIER 1: Run all crawlers in parallel with timeout protection
       const crawlPromises = [
-        this.withTimeout(this.crawlAcademicPapers(domain, searchQueries), 120000, 'Academic Papers'),
-        this.withTimeout(this.crawlGitHubRepositories(domain, searchQueries), 120000, 'GitHub Repos'),
-        this.withTimeout(this.crawlTechnicalDocumentation(domain, sources.techDocs), 120000, 'Tech Docs'),
-        this.withTimeout(this.crawlYouTubeTutorials(domain, searchQueries), 120000, 'YouTube'),
-        this.withTimeout(this.crawlExpertContent(domain, sources.expertSites), 120000, 'Expert Content'),
-        this.withTimeout(this.crawlIndustryReports(domain, searchQueries), 120000, 'Industry Reports')
+        this.withTimeout(this.crawlAcademicPapers(domain, searchQueries), 300000, 'Academic Papers'),
+        this.withTimeout(this.crawlGitHubRepositories(domain, searchQueries), 300000, 'GitHub Repos'),
+        this.withTimeout(this.crawlTechnicalDocumentation(domain, sources.techDocs), 300000, 'Tech Docs'),
+        this.withTimeout(this.crawlYouTubeTutorials(domain, searchQueries), 420000, 'YouTube'), // CHANGED: 7 minutes
+        this.withTimeout(this.crawlExpertContent(domain, sources.expertSites), 300000, 'Expert Content'),
+        this.withTimeout(this.crawlIndustryReports(domain, searchQueries), 180000, 'Industry Reports')
       ];
 
       // Wait for all crawlers to complete (or timeout)
@@ -302,12 +302,12 @@ class WebCrawler {
 
       // Limit results per category
       const limits = {
-        academicPapers: 15,
-        codeRepos: 20,
-        technicalDocs: 25,
-        videoTutorials: 30,
-        expertInterviews: 20,
-        industryReports: 10
+        academicPapers: 1500,      // Currently: 100
+        codeRepos: 5000,           // Currently: 200
+        technicalDocs: 500,       // Currently: 150
+        videoTutorials: 5000,     // Currently: 300
+        expertInterviews: 2300,    // Currently: 100
+        industryReports: 200      // Currently: 50
       };
       
       this.crawlData[category] = filtered.slice(0, limits[category] || 20);
@@ -342,35 +342,56 @@ class WebCrawler {
         'deep learning neural networks',
         'supervised learning classification',
         'unsupervised learning clustering',
-        'reinforcement learning guide'
+        'reinforcement learning guide',
+        'machine learning python implementation',      // NEW
+        'ML model training techniques',                // NEW
+        'feature engineering machine learning',        // NEW
+        'machine learning optimization algorithms',    // NEW
+        'ML deployment production systems',            // NEW
+        'neural network architectures',                // NEW
+        'machine learning data preprocessing',         // NEW
+        'ML performance evaluation metrics'            // NEW
       ],
       'machine learning with python and tensorflow': [
         'tensorflow python tutorial',
         'keras deep learning python',
         'scikit-learn machine learning',
         'pandas data analysis python',
-        'numpy tensorflow integration'
+        'numpy tensorflow integration',
+        'tensorflow model training',                   // NEW
+        'python ML libraries comparison',              // NEW
+        'tensorflow keras implementation',             // NEW
+        'python data science toolkit'                  // NEW
       ],
       'artificial intelligence': [
         'artificial intelligence algorithms',
         'AI neural networks implementation',
         'computer vision deep learning',
         'natural language processing',
-        'AI model development'
+        'AI model development',
+        'AI optimization techniques',                  // NEW
+        'artificial intelligence applications',        // NEW
+        'AI ethics and practices'                      // NEW
       ],
       'data science': [
         'data science python tutorial',
         'statistical analysis programming',
         'data visualization techniques',
         'big data analytics tools',
-        'data mining algorithms'
+        'data mining algorithms',
+        'data science workflow',                       // NEW
+        'exploratory data analysis',                   // NEW
+        'data cleaning techniques'                     // NEW
       ]
     };
 
     return queryMap[domainLower] || [
       `${domain} tutorial`,
       `${domain} programming guide`,
-      `${domain} implementation`
+      `${domain} implementation`,
+      `${domain} best practices`,
+      `${domain} advanced techniques`,
+      `${domain} for beginners`
     ];
   }
 
@@ -381,13 +402,20 @@ class WebCrawler {
           'https://scikit-learn.org/stable/user_guide.html',
           'https://tensorflow.org/tutorials',
           'https://pytorch.org/tutorials/',
-          'https://keras.io/guides/'
+          'https://keras.io/guides/',
+          'https://huggingface.co/docs',           // NEW
+          'https://fast.ai/tutorials',              // NEW
+          'https://docs.ray.io/en/latest/',        // NEW
         ],
         expertSites: [
           'https://towardsdatascience.com',
           'https://machinelearningmastery.com',
-          'https://distill.pub'
+          'https://distill.pub',
+          'https://paperswithcode.com',            // NEW
+          'https://medium.com/topic/machine-learning', // NEW
+          'https://reddit.com/r/MachineLearning',  // NEW
         ]
+  
       },
       'machine learning with python and tensorflow': {
         techDocs: [
@@ -423,7 +451,9 @@ class WebCrawler {
     console.log('📚 Crawling academic papers...');
     
     const papers = [];
-    const targetTerms = this.selectBestTermsForAcademic(domain, searchTerms);
+    // const targetTerms = this.selectBestTermsForAcademic(domain, searchTerms);
+
+    const targetTerms = searchTerms; // Remove slice/selection
 
     for (const term of targetTerms) {
       try {
@@ -472,7 +502,7 @@ class WebCrawler {
   async crawlArxivPapers(searchTerm) {
     try {
       const categories = 'cat:cs.LG+OR+cat:cs.AI+OR+cat:stat.ML+OR+cat:cs.CV';
-      const query = `search_query=${encodeURIComponent(searchTerm)}+AND+(${categories})&start=0&max_results=25&sortBy=relevance&sortOrder=descending`;
+      const query = `search_query=${encodeURIComponent(searchTerm)}+AND+(${categories})&start=0&max_results=50&sortBy=relevance&sortOrder=descending`;
       
       const response = await axios.get(`http://export.arxiv.org/api/query?${query}`, {
         timeout: 15000,
@@ -571,11 +601,12 @@ class WebCrawler {
     console.log('💻 Crawling GitHub repositories...');
     
     const repos = [];
-    const targetTerms = this.selectBestTermsForGitHub(domain, searchTerms);
+    // const targetTerms = this.selectBestTermsForGitHub(domain, searchTerms);
+    const targetTerms = searchTerms; // Remove slice/selection
     
     for (const term of targetTerms) {
       try {
-        const searchUrl = `https://api.github.com/search/repositories?q=${encodeURIComponent(term)}+language:python+topic:machine-learning&sort=stars&order=desc&per_page=20`;
+        const searchUrl = `https://api.github.com/search/repositories?q=${encodeURIComponent(term)}+language:python+topic:machine-learning&sort=stars&order=desc&per_page=50`;
         
         const response = await axios.get(searchUrl, {
           headers: {
@@ -639,24 +670,29 @@ class WebCrawler {
     const repoText = `${repo.name} ${repo.description || ''}`.toLowerCase();
     const termLower = searchTerm.toLowerCase();
     
-    if (repo.name.toLowerCase().includes(termLower)) score += 0.25;
-    if (repo.description && repo.description.toLowerCase().includes(termLower)) score += 0.15;
+    // More generous scoring
+    if (repo.name.toLowerCase().includes(termLower)) score += 0.30; // Increased from 0.25
+    if (repo.description && repo.description.toLowerCase().includes(termLower)) score += 0.20; // Increased from 0.15
     
-    if (repo.stargazers_count >= 100) score += 0.1;
-    if (repo.stargazers_count >= 1000) score += 0.1;
+    // More lenient star thresholds
+    if (repo.stargazers_count >= 10) score += 0.05;    // NEW: Accept even small repos
+    if (repo.stargazers_count >= 100) score += 0.10;   // Increased
+    if (repo.stargazers_count >= 1000) score += 0.10;
     if (repo.stargazers_count >= 5000) score += 0.05;
     
+    // Recency bonus
     const lastUpdate = new Date(repo.updated_at);
     const monthsOld = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24 * 30);
-    if (monthsOld < 6) score += 0.1;
-    if (monthsOld < 12) score += 0.05;
+    if (monthsOld < 6) score += 0.12;   // Increased from 0.10
+    if (monthsOld < 12) score += 0.08;  // Increased from 0.05
     if (monthsOld < 24) score += 0.05;
     
+    // Topic matching
     const domainKeywords = this.getDomainKeywords(domain);
     const topicMatches = repo.topics.filter(topic => 
       domainKeywords.some(kw => topic.includes(kw.toLowerCase().replace(' ', '-')))
     ).length;
-    score += Math.min(topicMatches * 0.05, 0.15);
+    score += Math.min(topicMatches * 0.08, 0.20); // Increased multiplier
     
     return Math.min(score, 1.0);
   }
@@ -696,7 +732,7 @@ class WebCrawler {
     return docs;
   }
 
-  async crawlWebsite(baseUrl, maxPages = 10) {
+  async crawlWebsite(baseUrl, maxPages = 100) {
     let browser = null;
     let page = null;
     
@@ -875,7 +911,7 @@ class WebCrawler {
     return Math.min(score, 1.0);
   }
 
-  async crawlWithHTTPFallback(baseUrl, maxPages = 3) {
+  async crawlWithHTTPFallback(baseUrl, maxPages = 30) {
     console.log(`🔄 Using HTTP fallback for ${baseUrl}`);
     
     try {
@@ -926,6 +962,31 @@ class WebCrawler {
     }
   }
 
+  // async crawlYouTubeTutorials(domain, searchTerms) {
+  //   console.log('🎥 Crawling YouTube tutorials...');
+    
+  //   if (process.env.YOUTUBE_API_KEY) {
+  //     return await this.crawlRealYouTubeVideos(searchTerms);
+  //   }
+    
+  //   const videos = [];
+  //   for (const term of searchTerms) { // Remove .slice(0, 3)
+  //     try {
+  //       const searchResults = await this.scrapeYouTubeSearch(term);
+  //       videos.push(...searchResults);
+  //       await this.delay(2000);
+  //     } catch (error) {
+  //       console.error(`Error searching YouTube for ${term}:`, error.message);
+  //       const simulatedResults = await this.simulateYouTubeSearch(term);
+  //       videos.push(...simulatedResults);
+  //     }
+  //   }
+
+  //   const relevantVideos = videos.filter(video => video.relevanceScore >= 0.4);
+  //   this.crawlData.videoTutorials = relevantVideos;
+  //   console.log(`🎬 Found ${relevantVideos.length} relevant video tutorials`);
+  //   return relevantVideos;
+  // }
   async crawlYouTubeTutorials(domain, searchTerms) {
     console.log('🎥 Crawling YouTube tutorials...');
     
@@ -934,7 +995,7 @@ class WebCrawler {
     }
     
     const videos = [];
-    for (const term of searchTerms.slice(0, 3)) {
+    for (const term of searchTerms) { // Already good - processes all terms
       try {
         const searchResults = await this.scrapeYouTubeSearch(term);
         videos.push(...searchResults);
@@ -945,8 +1006,9 @@ class WebCrawler {
         videos.push(...simulatedResults);
       }
     }
-
-    const relevantVideos = videos.filter(video => video.relevanceScore >= 0.4);
+  
+    // Lower threshold to keep more videos
+    const relevantVideos = videos.filter(video => video.relevanceScore >= 0.25); // CHANGED: from 0.4 to 0.25
     this.crawlData.videoTutorials = relevantVideos;
     console.log(`🎬 Found ${relevantVideos.length} relevant video tutorials`);
     return relevantVideos;
@@ -972,10 +1034,10 @@ class WebCrawler {
           part: 'snippet',
           type: 'video',
           order: 'relevance',
-          maxResults: 25,
-          videoDefinition: 'any',
-          videoDuration: 'medium',
-          videoCaption: 'closedCaption',
+          maxResults: 50,              // Can't exceed 50 per YouTube API
+        videoDefinition: 'any',      // Changed from specific
+        videoDuration: 'any',        // Changed from 'medium'
+        videoCaption: 'any',
           safeSearch: 'strict',
           relevanceLanguage: 'en'
         };
@@ -1049,6 +1111,42 @@ class WebCrawler {
     return videos;
   }
 
+  // calculateEnhancedVideoRelevance(video, searchTerm) {
+  //   let score = 0;
+    
+  //   const title = video.snippet.title.toLowerCase();
+  //   const description = video.snippet.description.toLowerCase();
+  //   const channel = video.snippet.channelTitle.toLowerCase();
+  //   const termLower = searchTerm.toLowerCase();
+    
+  //   if (title.includes(termLower)) score += 0.25;
+  //   if (title.includes('tutorial') || title.includes('course')) score += 0.1;
+    
+  //   if (description.includes(termLower)) score += 0.15;
+  //   if (description.includes('learn') || description.includes('beginner')) score += 0.05;
+    
+  //   const educationalChannels = ['tutorial', 'academy', 'course', 'university', 'tech', 'coding'];
+  //   if (educationalChannels.some(indicator => channel.includes(indicator))) score += 0.15;
+  //   else score += 0.05;
+    
+  //   const views = parseInt(video.statistics.viewCount) || 0;
+  //   const likes = parseInt(video.statistics.likeCount) || 0;
+  //   const comments = parseInt(video.statistics.commentCount) || 0;
+    
+  //   if (views >= 1000) score += 0.05;
+  //   if (views >= 10000) score += 0.05;
+  //   if (views >= 100000) score += 0.05;
+    
+  //   if (views > 0) {
+  //     const engagementRate = (likes + comments) / views;
+  //     if (engagementRate > 0.01) score += 0.05;
+  //   }
+    
+  //   const duration = this.parseYouTubeDuration(video.contentDetails.duration);
+  //   if (duration >= 300 && duration <= 3600) score += 0.1;
+    
+  //   return Math.min(score, 1.0);
+  // }
   calculateEnhancedVideoRelevance(video, searchTerm) {
     let score = 0;
     
@@ -1057,35 +1155,50 @@ class WebCrawler {
     const channel = video.snippet.channelTitle.toLowerCase();
     const termLower = searchTerm.toLowerCase();
     
-    if (title.includes(termLower)) score += 0.25;
-    if (title.includes('tutorial') || title.includes('course')) score += 0.1;
+    // More generous scoring
+    if (title.includes(termLower)) score += 0.30; // Increased from 0.25
+    if (title.includes('tutorial') || title.includes('course') || title.includes('learn')) score += 0.15; // Increased
     
     if (description.includes(termLower)) score += 0.15;
-    if (description.includes('learn') || description.includes('beginner')) score += 0.05;
+    if (description.includes('learn') || description.includes('beginner') || description.includes('guide')) score += 0.10; // Increased
     
     const educationalChannels = ['tutorial', 'academy', 'course', 'university', 'tech', 'coding'];
     if (educationalChannels.some(indicator => channel.includes(indicator))) score += 0.15;
-    else score += 0.05;
+    else score += 0.08; // Increased from 0.05
     
     const views = parseInt(video.statistics.viewCount) || 0;
     const likes = parseInt(video.statistics.likeCount) || 0;
     const comments = parseInt(video.statistics.commentCount) || 0;
     
+    // More lenient view thresholds
+    if (views >= 100) score += 0.03; // NEW: even low view videos
     if (views >= 1000) score += 0.05;
     if (views >= 10000) score += 0.05;
     if (views >= 100000) score += 0.05;
     
     if (views > 0) {
       const engagementRate = (likes + comments) / views;
-      if (engagementRate > 0.01) score += 0.05;
+      if (engagementRate > 0.005) score += 0.05; // More lenient: 0.005 instead of 0.01
     }
     
     const duration = this.parseYouTubeDuration(video.contentDetails.duration);
-    if (duration >= 300 && duration <= 3600) score += 0.1;
+    // Accept wider duration range
+    if (duration >= 180 && duration <= 7200) score += 0.10; // 3 min to 2 hours
     
     return Math.min(score, 1.0);
   }
 
+
+
+
+
+
+
+
+
+
+
+  
   parseYouTubeDuration(duration) {
     const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
     if (!match) return 0;
@@ -1120,6 +1233,55 @@ class WebCrawler {
     }
   }
 
+  // parseYouTubeSearchResults(ytData, searchTerm) {
+  //   const videos = [];
+    
+  //   try {
+  //     const contents = ytData?.contents?.twoColumnSearchResultsRenderer?.primaryContents
+  //       ?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
+      
+  //     for (const content of contents.slice(0, 15)) {
+  //       const videoRenderer = content.videoRenderer;
+  //       if (!videoRenderer) continue;
+        
+  //       const title = videoRenderer.title?.runs?.[0]?.text || 'Unknown Title';
+  //       const channelName = videoRenderer.ownerText?.runs?.[0]?.text || 'Unknown Channel';
+  //       const viewCount = videoRenderer.viewCountText?.simpleText || '0 views';
+  //       const duration = videoRenderer.lengthText?.simpleText || '0:00';
+  //       const publishedTime = videoRenderer.publishedTimeText?.simpleText || 'Unknown';
+  //       const videoId = videoRenderer.videoId;
+        
+  //       const viewMatch = viewCount.match(/[\d,]+/);
+  //       const views = viewMatch ? parseInt(viewMatch[0].replace(/,/g, '')) : 0;
+        
+  //       const durationParts = duration.split(':').map(Number).reverse();
+  //       const durationSeconds = durationParts.reduce((acc, val, idx) => acc + val * Math.pow(60, idx), 0);
+        
+  //       const relevanceScore = this.calculateScrapedVideoRelevance(title, views, searchTerm, channelName);
+        
+  //       if (relevanceScore >= 0.4) {
+  //         videos.push({
+  //           videoId: videoId,
+  //           title: title,
+  //           channel: channelName,
+  //           url: `https://www.youtube.com/watch?v=${videoId}`,
+  //           views: views,
+  //           duration: durationSeconds,
+  //           publishedTime: publishedTime,
+  //           searchTerm: searchTerm,
+  //           relevanceScore: relevanceScore,
+  //           source: 'YOUTUBE_SCRAPING'
+  //         });
+  //       }
+  //     }
+      
+  //   } catch (error) {
+  //     console.error('Error parsing YouTube search results:', error.message);
+  //   }
+    
+  //   return videos.sort((a, b) => b.relevanceScore - a.relevanceScore);
+  // }
+
   parseYouTubeSearchResults(ytData, searchTerm) {
     const videos = [];
     
@@ -1127,7 +1289,8 @@ class WebCrawler {
       const contents = ytData?.contents?.twoColumnSearchResultsRenderer?.primaryContents
         ?.sectionListRenderer?.contents?.[0]?.itemSectionRenderer?.contents || [];
       
-      for (const content of contents.slice(0, 15)) {
+      // Process more videos
+      for (const content of contents.slice(0, 25)) { // CHANGED: from 15 to 25
         const videoRenderer = content.videoRenderer;
         if (!videoRenderer) continue;
         
@@ -1146,7 +1309,8 @@ class WebCrawler {
         
         const relevanceScore = this.calculateScrapedVideoRelevance(title, views, searchTerm, channelName);
         
-        if (relevanceScore >= 0.4) {
+        // Lower threshold
+        if (relevanceScore >= 0.25) { // CHANGED: from 0.4 to 0.25
           videos.push({
             videoId: videoId,
             title: title,
@@ -1169,6 +1333,42 @@ class WebCrawler {
     return videos.sort((a, b) => b.relevanceScore - a.relevanceScore);
   }
 
+
+
+
+
+
+
+
+  
+
+  // calculateScrapedVideoRelevance(title, views, searchTerm, channel = '') {
+  //   let score = 0;
+    
+  //   const titleLower = title.toLowerCase();
+  //   const channelLower = channel.toLowerCase();
+  //   const termLower = searchTerm.toLowerCase();
+    
+  //   if (titleLower.includes(termLower)) score += 0.3;
+  //   if (titleLower.includes('tutorial') || titleLower.includes('course')) score += 0.1;
+    
+  //   const educationalIndicators = ['tutorial', 'academy', 'course', 'university', 'tech', 'coding', 'programming'];
+  //   if (educationalIndicators.some(indicator => channelLower.includes(indicator))) {
+  //     score += 0.25;
+  //   } else {
+  //     score += 0.05;
+  //   }
+    
+  //   if (views >= 1000) score += 0.05;
+  //   if (views >= 10000) score += 0.1;
+  //   if (views >= 100000) score += 0.05;
+    
+  //   const contentIndicators = ['beginner', 'complete', 'guide', 'learn', 'step by step'];
+  //   if (contentIndicators.some(indicator => titleLower.includes(indicator))) score += 0.1;
+    
+  //   return Math.min(score, 1.0);
+  // }
+
   calculateScrapedVideoRelevance(title, views, searchTerm, channel = '') {
     let score = 0;
     
@@ -1176,31 +1376,99 @@ class WebCrawler {
     const channelLower = channel.toLowerCase();
     const termLower = searchTerm.toLowerCase();
     
-    if (titleLower.includes(termLower)) score += 0.3;
-    if (titleLower.includes('tutorial') || titleLower.includes('course')) score += 0.1;
+    // More generous scoring
+    if (titleLower.includes(termLower)) score += 0.35; // Increased from 0.30
+    if (titleLower.includes('tutorial') || titleLower.includes('course') || titleLower.includes('learn')) score += 0.15; // Increased
     
     const educationalIndicators = ['tutorial', 'academy', 'course', 'university', 'tech', 'coding', 'programming'];
     if (educationalIndicators.some(indicator => channelLower.includes(indicator))) {
       score += 0.25;
     } else {
-      score += 0.05;
+      score += 0.08; // Increased from 0.05
     }
     
+    // More lenient view scoring
+    if (views >= 100) score += 0.03; // NEW
     if (views >= 1000) score += 0.05;
-    if (views >= 10000) score += 0.1;
+    if (views >= 10000) score += 0.10;
     if (views >= 100000) score += 0.05;
     
-    const contentIndicators = ['beginner', 'complete', 'guide', 'learn', 'step by step'];
-    if (contentIndicators.some(indicator => titleLower.includes(indicator))) score += 0.1;
+    const contentIndicators = ['beginner', 'complete', 'guide', 'learn', 'step by step', 'full', 'crash course'];
+    if (contentIndicators.some(indicator => titleLower.includes(indicator))) score += 0.12; // Increased
     
     return Math.min(score, 1.0);
   }
+  // async simulateYouTubeSearch(searchTerm) {
+  //   const educationalChannels = [
+  //     'TechWithTim', 'Corey Schafer', 'Sentdex', 'Two Minute Papers',
+  //     'Machine Learning Explained', 'Python Engineer', 'CodeBasics',
+  //     'freeCodeCamp.org', 'Traversy Media', 'The Net Ninja'
+  //   ];
+    
+  //   const videoTitles = {
+  //     'machine learning': [
+  //       'Complete Machine Learning Course',
+  //       'Machine Learning Algorithms Explained',
+  //       'ML From Scratch - Full Tutorial',
+  //       'Neural Networks Deep Dive',
+  //       'Supervised vs Unsupervised Learning'
+  //     ],
+  //     'tensorflow': [
+  //       'TensorFlow 2.0 Complete Tutorial',
+  //       'Deep Learning with TensorFlow',
+  //       'TensorFlow for Beginners',
+  //       'Building Neural Networks in TensorFlow',
+  //       'TensorFlow vs PyTorch Comparison'
+  //     ],
+  //     'python': [
+  //       'Python Programming Full Course',
+  //       'Python for Data Science',
+  //       'Advanced Python Techniques',
+  //       'Python OOP Complete Guide',
+  //       'Python Projects for Beginners'
+  //     ]
+  //   };
+    
+  //   const titles = videoTitles[searchTerm.toLowerCase()] || [
+  //     `${searchTerm} Complete Tutorial`,
+  //     `Learn ${searchTerm} from Scratch`,
+  //     `${searchTerm} for Beginners`,
+  //     `Advanced ${searchTerm} Techniques`,
+  //     `${searchTerm} Project Tutorial`
+  //   ];
+    
+  //   const videos = [];
+    
+  //   for (let i = 0; i < titles.length; i++) {
+  //     const channel = educationalChannels[Math.floor(Math.random() * educationalChannels.length)];
+  //     const baseViews = Math.floor(Math.random() * 500000) + 10000;
+  //     const duration = Math.floor(Math.random() * 2400) + 600;
+      
+  //     videos.push({
+  //       title: titles[i],
+  //       channel: channel,
+  //       duration: duration,
+  //       views: baseViews,
+  //       likes: Math.floor(baseViews * (Math.random() * 0.05 + 0.01)),
+  //       publishedAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
+  //       description: `Comprehensive tutorial covering ${searchTerm}. Perfect for beginners and intermediate learners.`,
+  //       tags: [searchTerm, 'tutorial', 'programming', 'course', 'education'],
+  //       relevanceScore: Math.random() * 0.3 + 0.7,
+  //       source: 'SIMULATED_QUALITY',
+  //       searchTerm: searchTerm
+  //     });
+  //   }
+    
+  //   return videos;
+  // }
 
   async simulateYouTubeSearch(searchTerm) {
     const educationalChannels = [
       'TechWithTim', 'Corey Schafer', 'Sentdex', 'Two Minute Papers',
       'Machine Learning Explained', 'Python Engineer', 'CodeBasics',
-      'freeCodeCamp.org', 'Traversy Media', 'The Net Ninja'
+      'freeCodeCamp.org', 'Traversy Media', 'The Net Ninja',
+      'Programming with Mosh', 'Academind', 'The Coding Train',
+      'Tech With Tim', 'Krish Naik', 'CampusX' // NEW channels
     ];
     
     const videoTitles = {
@@ -1209,21 +1477,31 @@ class WebCrawler {
         'Machine Learning Algorithms Explained',
         'ML From Scratch - Full Tutorial',
         'Neural Networks Deep Dive',
-        'Supervised vs Unsupervised Learning'
+        'Supervised vs Unsupervised Learning',
+        'Machine Learning Project Tutorial',            // NEW
+        'ML Feature Engineering Guide',                 // NEW
+        'Machine Learning Mathematics Explained',       // NEW
+        'Building ML Models Step by Step'               // NEW
       ],
       'tensorflow': [
         'TensorFlow 2.0 Complete Tutorial',
         'Deep Learning with TensorFlow',
         'TensorFlow for Beginners',
         'Building Neural Networks in TensorFlow',
-        'TensorFlow vs PyTorch Comparison'
+        'TensorFlow vs PyTorch Comparison',
+        'TensorFlow Model Deployment',                  // NEW
+        'Advanced TensorFlow Techniques',               // NEW
+        'TensorFlow Custom Training Loops'              // NEW
       ],
       'python': [
         'Python Programming Full Course',
         'Python for Data Science',
         'Advanced Python Techniques',
         'Python OOP Complete Guide',
-        'Python Projects for Beginners'
+        'Python Projects for Beginners',
+        'Python Automation Tutorial',                   // NEW
+        'Python Web Scraping Course',                   // NEW
+        'Python Data Structures Deep Dive'              // NEW
       ]
     };
     
@@ -1232,15 +1510,19 @@ class WebCrawler {
       `Learn ${searchTerm} from Scratch`,
       `${searchTerm} for Beginners`,
       `Advanced ${searchTerm} Techniques`,
-      `${searchTerm} Project Tutorial`
+      `${searchTerm} Project Tutorial`,
+      `${searchTerm} Crash Course`,                      // NEW
+      `${searchTerm} Full Guide`,                        // NEW
+      `${searchTerm} Step by Step`                       // NEW
     ];
     
     const videos = [];
     
+    // Generate more simulated videos
     for (let i = 0; i < titles.length; i++) {
       const channel = educationalChannels[Math.floor(Math.random() * educationalChannels.length)];
-      const baseViews = Math.floor(Math.random() * 500000) + 10000;
-      const duration = Math.floor(Math.random() * 2400) + 600;
+      const baseViews = Math.floor(Math.random() * 500000) + 5000; // Lower minimum
+      const duration = Math.floor(Math.random() * 3600) + 300; // 5min to 1 hour
       
       videos.push({
         title: titles[i],
@@ -1251,7 +1533,7 @@ class WebCrawler {
         publishedAt: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
         description: `Comprehensive tutorial covering ${searchTerm}. Perfect for beginners and intermediate learners.`,
         tags: [searchTerm, 'tutorial', 'programming', 'course', 'education'],
-        relevanceScore: Math.random() * 0.3 + 0.7,
+        relevanceScore: Math.random() * 0.25 + 0.60, // 0.60-0.85 range
         source: 'SIMULATED_QUALITY',
         searchTerm: searchTerm
       });
@@ -1264,14 +1546,14 @@ class WebCrawler {
     console.log('🎭 Using enhanced simulation for YouTube data...');
     const videos = [];
     
-    for (const term of searchTerms.slice(0, 3)) {
+    // Process ALL terms, not just first 3
+    for (const term of searchTerms) { // CHANGED: Remove .slice(0, 3)
       const simulatedVideos = await this.simulateYouTubeSearch(term);
       videos.push(...simulatedVideos);
     }
     
     return videos;
   }
-
   async crawlExpertContent(domain, expertSites) {
     console.log('👥 Crawling expert content...');
     
