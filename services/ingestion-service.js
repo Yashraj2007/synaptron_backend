@@ -735,10 +735,10 @@ generateRealisticCount(type, domain) {
   const isPopular = popularDomains.some(d => domainLower.includes(d));
   
   const baseCounts = {
-    papers: isPopular ? [25, 45] : [10, 25],
+    papers: isPopular ? [150, 300] : [50, 150],
     docs: isPopular ? [15, 30] : [8, 18],
-    repos: isPopular ? [40, 70] : [20, 40],
-    videos: isPopular ? [30, 50] : [15, 30],
+    repos: isPopular ? [200, 400] : [100, 200],
+    videos: isPopular ? [300, 600] : [100, 300],
     hours: isPopular ? [45, 80] : [20, 45],
     interviews: [3, 8],
     reports: [5, 12]
