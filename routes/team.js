@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const teamController = require('../controllers/teamController');
+const teamController = require('../controllers/teamcontroller');
 
 // Create team
 router.post('/create', teamController.createTeam);
@@ -27,3 +27,4 @@ router.post('/:code/members', teamController.addMember);
 router.post('/:code/tasks', teamController.addTask);
 
 module.exports = router;
+
